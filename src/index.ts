@@ -5,6 +5,7 @@ import { Server, Socket } from "socket.io";
 import cors from "cors";
 import type { CellOwner, JoinPayload, CapturePayload } from "./types.js";
 
+
 const PORT = process.env.PORT || 3001;
 const GRID_SIZE = 60;
 const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;

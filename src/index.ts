@@ -71,8 +71,14 @@ const getLeaderboard = () => {
 };
 
 
+const broadcastOnlineCount = () => {
+  io.emit("players:count", io.engine.clientsCount);
+};
+
 io.on("connection", (socket: Socket) => {
+  console.log("Client connected:", socket.id);
   socket.data = {};
+  broadcastOnlineCount();
 
   socket.on("join", ({ username, color }: JoinPayload) => {
     socket.data.username = username || "Anonymous";
@@ -98,6 +104,21 @@ io.on("connection", (socket: Socket) => {
     io.emit("grid:update", { cellId, owner });
     io.emit("leaderboard:update", getLeaderboard());
     saveGrid(grid);
+  });
+
+  socket.on("grid:reset", () => {
+    // Fill grid with nulls
+    grid.fill(null);
+    saveGrid(grid);
+
+    // Broadcast cleared state to everyone
+    io.emit("grid:init", grid);
+    io.emit("leaderboard:update", getLeaderboard());
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+    broadcastOnlineCount();
   });
 });
 
